@@ -35,5 +35,15 @@ namespace BusinessLayer.Sessions
         {
             return bookRepo.DeleteBook(id);
         }
+
+        public List<BookModel> FindBook(string name)
+        {
+            return bookRepo.FindBook(name);
+        }
+
+        public BookModel InsertOrUpdate(int Id, BookModel bookModel)
+        {
+            return bookRepo.InsertOrUpdate(Id, bookModel);
+        }
     }
 }

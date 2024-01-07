@@ -20,5 +20,15 @@ namespace BusinessLayer.Sessions
         {
             return shippingAddressRepo.AddShipmentAddress(UserId, shipmentAddressModel);
         }
+
+        public List<ShipmentAddressModel> GetShippingAddress(int UserId)
+        {
+            return shippingAddressRepo.GetShippingAddress(UserId);
+        }
+
+        public bool DeleteShippingAddress(int UserId, int ShippingId)
+        {
+            return shippingAddressRepo.DeleteShippingAddress(UserId, ShippingId);
+        }
     }
 }

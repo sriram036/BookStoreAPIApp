@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Text;
 using RepositoryLayer.Interfaces;
+using System.Xml.Linq;
 
 namespace RepositoryLayer.Sessions
 {
@@ -37,6 +38,64 @@ namespace RepositoryLayer.Sessions
                     con.Open();
                     cmd.ExecuteNonQuery();
                     con.Close();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public List<ShipmentAddressModel> GetShippingAddress(int UserId)
+        {
+            List<ShipmentAddressModel> shippingAddresses = new List<ShipmentAddressModel>();
+
+            using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
+            {
+                SqlCommand cmd = new SqlCommand("spGetShippingAddress", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@UserId", UserId);
+
+                con.Open();
+                SqlDataReader Reader = cmd.ExecuteReader();
+                while (Reader.Read())
+                {
+                    ShipmentAddressModel shipmentAddress = new ShipmentAddressModel();
+                    shipmentAddress.ShippingAddress = Reader["ShippingAddress"].ToString();
+                    shipmentAddress.ShippingCity = Reader["ShippingCity"].ToString();
+                    shipmentAddress.ShippingState = Reader["ShippingState"].ToString();
+                    shipmentAddress.AddressType = Convert.ToInt32(Reader["AddressType"]);
+
+                    shippingAddresses.Add(shipmentAddress);
+                }
+            }
+            return shippingAddresses;
+        }
+
+        public bool DeleteShippingAddress(int UserId, int ShippingId)
+        {
+            List<int> shippingIds = new List<int>();
+            using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
+            {
+                SqlCommand cmd = new SqlCommand("spGetShippingAddress", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@UserId", UserId);
+
+                con.Open();
+                SqlDataReader Reader = cmd.ExecuteReader();
+                while (Reader.Read())
+                {
+                    int Ids = Convert.ToInt32(Reader["ShippingAddressId"]);
+
+                    shippingIds.Add(Ids);
+                }
+                if (ShippingId == shippingIds.Find(id => id.Equals(ShippingId)))
+                {
+                    SqlCommand cmdDelete = new SqlCommand("spDeleteShippingAddress", con);
+                    cmdDelete.CommandType = CommandType.StoredProcedure;
+                    cmdDelete.Parameters.AddWithValue("@ShippingAddressId", ShippingId);
+                    cmdDelete.ExecuteNonQuery();
                     return true;
                 }
                 else

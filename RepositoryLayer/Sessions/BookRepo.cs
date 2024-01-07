@@ -170,5 +170,91 @@ namespace RepositoryLayer.Sessions
                 }
             }
         }
+
+        public List<BookModel> FindBook(string name)
+        {
+            List<BookModel> books = new List<BookModel>();
+
+            using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
+            {
+                SqlCommand cmd = new SqlCommand("spGetBookByAuthor", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Author", name);
+
+                con.Open();
+                SqlDataReader Reader = cmd.ExecuteReader();
+                while (Reader.Read())
+                {
+                    BookModel bookModel = new BookModel();
+                    bookModel.BookTitle = Reader["BookTitle"].ToString();
+                    bookModel.BookAuthor = Reader["BookAuthor"].ToString();
+                    bookModel.BookRating = Convert.ToDouble(Reader["BookRating"]);
+                    bookModel.NoOfUsersRated = Convert.ToInt32(Reader["NoOfUsersRated"]);
+                    bookModel.BookOriginalPrice = Convert.ToInt32(Reader["BookOriginalPrice"]);
+                    bookModel.BookDiscountPrice = Convert.ToInt32(Reader["BookDiscountPrice"]);
+                    bookModel.BookDetail = Reader["BookDetail"].ToString();
+                    bookModel.BookImage = Reader["BookImage"].ToString();
+                    bookModel.StockQuantity = Convert.ToInt32(Reader["StockQuantity"]);
+                    books.Add(bookModel);
+                }
+            }
+            return books;
+        }
+
+        public BookModel InsertOrUpdate(int Id,BookModel bookModel)
+        {
+            int BookId = 0;
+            using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
+            {
+                SqlCommand cmd = new SqlCommand("spGetBook", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@BookId", Id);
+
+                con.Open();
+                SqlDataReader Reader = cmd.ExecuteReader();
+                while (Reader.Read())
+                {
+                    BookId = Convert.ToInt32(Reader["BookId"]);
+                }
+                if (BookId == Id)
+                {
+                    SqlCommand cmdUpdate = new SqlCommand("spEditBook", con);
+                    cmdUpdate.CommandType = CommandType.StoredProcedure;
+                    cmdUpdate.Parameters.AddWithValue("@BookId", BookId);
+                    cmdUpdate.Parameters.AddWithValue("@BookTitle", bookModel.BookTitle);
+                    cmdUpdate.Parameters.AddWithValue("@BookAuthor", bookModel.BookAuthor);
+                    cmdUpdate.Parameters.AddWithValue("@BookRating", bookModel.BookRating);
+                    cmdUpdate.Parameters.AddWithValue("@NoOfUsersRated", bookModel.NoOfUsersRated);
+                    cmdUpdate.Parameters.AddWithValue("@BookOriginalPrice", bookModel.BookOriginalPrice);
+                    cmdUpdate.Parameters.AddWithValue("@BookDiscountPrice", bookModel.BookDiscountPrice);
+                    cmdUpdate.Parameters.AddWithValue("@BookDetail", bookModel.BookDetail);
+                    cmdUpdate.Parameters.AddWithValue("@BookImage", bookModel.BookImage);
+                    cmdUpdate.Parameters.AddWithValue("@StockQuantity", bookModel.StockQuantity);
+                    cmdUpdate.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                    cmdUpdate.ExecuteNonQuery();
+                    return bookModel;
+                }
+                else
+                {
+                    SqlCommand cmdInsert = new SqlCommand("spAddBook", con);
+                    cmdInsert.CommandType = CommandType.StoredProcedure;
+
+                    cmdInsert.Parameters.AddWithValue("@BookTitle", bookModel.BookTitle);
+                    cmdInsert.Parameters.AddWithValue("@BookAuthor", bookModel.BookAuthor);
+                    cmdInsert.Parameters.AddWithValue("@BookRating", bookModel.BookRating);
+                    cmdInsert.Parameters.AddWithValue("@NoOfUsersRated", bookModel.NoOfUsersRated);
+                    cmdInsert.Parameters.AddWithValue("@BookOriginalPrice", bookModel.BookOriginalPrice);
+                    cmdInsert.Parameters.AddWithValue("@BookDiscountPrice", bookModel.BookDiscountPrice);
+                    cmdInsert.Parameters.AddWithValue("@BookDetail", bookModel.BookDetail);
+                    cmdInsert.Parameters.AddWithValue("@BookImage", bookModel.BookImage);
+                    cmdInsert.Parameters.AddWithValue("@StockQuantity", bookModel.StockQuantity);
+                    cmdInsert.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
+                    cmdInsert.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                    cmdInsert.ExecuteNonQuery();
+                    return bookModel;
+                }
+            }
+            
+        }
     }
 }

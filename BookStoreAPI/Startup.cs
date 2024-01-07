@@ -44,6 +44,12 @@ namespace BookStoreAPI
             services.AddTransient<IWishListRepo, WishListRepo>();
             services.AddTransient<IShippingAddressBusiness, ShippingAddressBusiness>();
             services.AddTransient<IShippingAddressRepo, ShippingAddressRepo>();
+            services.AddTransient<IFeedbackBusiness, FeedbackBusiness>();
+            services.AddTransient<IFeedbackRepo, FeedbackRepo>();
+            services.AddTransient<IUserAddressBusiness, UserAddressBusiness>();
+            services.AddTransient<IUserAddressRepo, UserAddressRepo>();
+            services.AddTransient<IOrderBusiness, OrderBusiness>();
+            services.AddTransient<IOrderRepo, OrderRepo>();
             services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });

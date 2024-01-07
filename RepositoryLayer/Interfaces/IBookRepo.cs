@@ -1,4 +1,5 @@
 ﻿using ModelLayer.Models;
+using System.Collections.Generic;
 
 namespace RepositoryLayer.Interfaces
 {
@@ -8,5 +9,8 @@ namespace RepositoryLayer.Interfaces
         BookModel GetBook(int id);
         BookModel EditBook(int id, BookModel bookModel);
         bool DeleteBook(int id);
+
+        List<BookModel> FindBook(string name);
+        BookModel InsertOrUpdate(int Id, BookModel bookModel);
     }
 }

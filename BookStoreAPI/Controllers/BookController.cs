@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ModelLayer.Models;
+using System.Collections.Generic;
 
 namespace BookStoreAPI.Controllers
 {
@@ -77,6 +78,38 @@ namespace BookStoreAPI.Controllers
             else
             {
                 return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Book Not Deleted", Data = "Book Id Not Found or Matched" });
+            }
+        }
+
+        [HttpGet]
+        [Route("FindBook")]
+        public List<BookModel> FindBook(string name)
+        {
+            List<BookModel> books = bookBusiness.FindBook(name);
+
+            if(books != null)
+            {
+                return books;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        [HttpPost]
+        [Route("InsertOrUpdate")]
+        public IActionResult InsertOrUpdate(int Id, BookModel bookModel)
+        {
+            BookModel book = bookBusiness.InsertOrUpdate(Id, bookModel);
+
+            if(book != null)
+            {
+                return Ok(new ResponseModel<BookModel> { IsSuccess = true, Message = "AddedOrUpdated", Data = book});
+            }
+            else
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Not Added or Updated", Data = "Connection Failed" });
             }
         }
     }
