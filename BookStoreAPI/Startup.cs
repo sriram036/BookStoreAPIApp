@@ -50,6 +50,10 @@ namespace BookStoreAPI
             services.AddTransient<IUserAddressRepo, UserAddressRepo>();
             services.AddTransient<IOrderBusiness, OrderBusiness>();
             services.AddTransient<IOrderRepo, OrderRepo>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            });
             services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
@@ -111,6 +115,8 @@ namespace BookStoreAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthorization();
 

@@ -34,6 +34,22 @@ namespace BookStoreAPI.Controllers
         }
 
         [HttpGet]
+        [Route("GetBooks")]
+        public List<BookWithIdModel> GetBooks()
+        {
+            List<BookWithIdModel> books = bookBusiness.GetBooks();
+
+            if(books == null)
+            {
+                return null;
+            }
+            else
+            {
+                return books;
+            }
+        }
+
+        [HttpGet]
         [Route("GetBook")]
         public IActionResult GetBook(int id)
         {

@@ -21,7 +21,7 @@ namespace BusinessLayer.Sessions
             return userRepo.AddUser(userModel);
         }
 
-        public UserModel LoginUser(LoginModel loginModel)
+        public string LoginUser(LoginModel loginModel)
         {
             return userRepo.LoginUser(loginModel);
         }
@@ -36,7 +36,7 @@ namespace BusinessLayer.Sessions
             return userRepo.ResetPassword(Email, resetPasswordModel);
         }
 
-        public UserModel UpdateUser(string Email, string Name, long Number)
+        public UserModel UpdateUser(string Email, string Name, string Number)
         {
             return userRepo.UpdateUser(Email, Name, Number);
         }
@@ -44,6 +44,11 @@ namespace BusinessLayer.Sessions
         public bool DeleteUser(string Email)
         {
             return userRepo.DeleteUser(Email);
+        }
+
+        public UserModel getUser(int UserId)
+        {
+            return userRepo.getUser(UserId);
         }
     }
 }

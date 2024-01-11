@@ -6,10 +6,10 @@ namespace BusinessLayer.Interfaces
     public interface IBookBusiness
     {
         BookModel AddBook(BookModel bookModel);
+        List<BookWithIdModel> GetBooks();
         BookModel GetBook(int id);
         BookModel EditBook(int id, BookModel bookModel);
         bool DeleteBook(int id);
-
         List<BookModel> FindBook(string name);
         BookModel InsertOrUpdate(int Id, BookModel bookModel);
     }

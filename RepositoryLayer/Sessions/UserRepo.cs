@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ModelLayer.Models;
+using Newtonsoft.Json.Linq;
 using RepositoryLayer.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace RepositoryLayer.Sessions
                 cmd.Parameters.AddWithValue("@FullName", userModel.FullName);
                 cmd.Parameters.AddWithValue("@EmailId", userModel.Email);
                 cmd.Parameters.AddWithValue("@Password", EncodePassword(userModel.Password));
-                cmd.Parameters.AddWithValue("@MobileNumber", userModel.MobileNumber);
+                cmd.Parameters.AddWithValue("@MobileNumber", long.Parse(userModel.MobileNumber));
                 cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
                 cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                 con.Open();
@@ -56,9 +57,10 @@ namespace RepositoryLayer.Sessions
             }
         }
 
-        public UserModel LoginUser(LoginModel loginModel)
+        public string LoginUser(LoginModel loginModel)
         {
-            UserModel userModel = new UserModel();
+            string token = "";
+            int UserId = 0;
             using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
             {
                 SqlCommand cmd = new SqlCommand("spGetUser", con);
@@ -70,13 +72,51 @@ namespace RepositoryLayer.Sessions
                 SqlDataReader Reader = cmd.ExecuteReader();
                 while (Reader.Read())
                 {
+                    UserId = Convert.ToInt32(Reader["UserId"]);
+                }
+
+                if(UserId != 0)
+                {
+                    token = GenerateToken(loginModel.Email, UserId);
+                    return token;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        public UserModel getUser(int UserId)
+        {
+            int User = 0;
+            UserModel userModel = new UserModel();
+            using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
+            {
+                SqlCommand cmd = new SqlCommand("spGetUserByUserId", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@UserId", UserId);
+
+                con.Open();
+                SqlDataReader Reader = cmd.ExecuteReader();
+                while (Reader.Read())
+                {
+                    User = Convert.ToInt32(Reader["UserId"]);
                     userModel.FullName = Reader["FullName"].ToString();
                     userModel.Email = Reader["EmailId"].ToString();
                     userModel.Password = Reader["Password"].ToString();
-                    userModel.MobileNumber = Convert.ToInt64(Reader["MobileNumber"]);
+                    userModel.MobileNumber = Reader["MobileNumber"].ToString();
+                }
+
+                if (User != 0)
+                {
+                    return userModel;
+                }
+                else
+                {
+                    return null;
                 }
             }
-            return userModel;
         }
 
         public ForgotPasswordModel ForgotPassword(string Email)
@@ -157,7 +197,7 @@ namespace RepositoryLayer.Sessions
             }
         }
 
-        public UserModel UpdateUser(string Email, string Name, long Number)
+        public UserModel UpdateUser(string Email, string Name, string Number)
         {
             string EmailId = "";
             using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
@@ -178,7 +218,7 @@ namespace RepositoryLayer.Sessions
                     SqlCommand cmdUpdate = new SqlCommand("spUpdateUser", con);
                     cmdUpdate.CommandType = CommandType.StoredProcedure;
                     cmdUpdate.Parameters.AddWithValue("@FullName", Name);
-                    cmdUpdate.Parameters.AddWithValue("@MobileNumber", Number);
+                    cmdUpdate.Parameters.AddWithValue("@MobileNumber", long.Parse(Number));
                     cmdUpdate.Parameters.AddWithValue("@Email", Email);
                     cmdUpdate.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                     con.Open();
@@ -195,7 +235,7 @@ namespace RepositoryLayer.Sessions
                         userModel.FullName = ReaderData["FullName"].ToString();
                         userModel.Email = ReaderData["EmailId"].ToString();
                         userModel.Password = ReaderData["Password"].ToString();
-                        userModel.MobileNumber = Convert.ToInt64(ReaderData["MobileNumber"]);
+                        userModel.MobileNumber = ReaderData["MobileNumber"].ToString();
                     }
                     return userModel;
                 }

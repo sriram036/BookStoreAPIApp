@@ -60,6 +60,47 @@ namespace RepositoryLayer.Sessions
             }
         }
 
+        public List<BookWithIdModel> GetCartBooksByUserId(int UserId)
+        {
+            using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
+            {
+                List<BookWithIdModel> carts = new List<BookWithIdModel>();
+                SqlCommand cmd = new SqlCommand("spGetCartBooksByUserId", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@UserId", UserId);
+                con.Open();
+                SqlDataReader Reader = cmd.ExecuteReader();
+                while (Reader.Read())
+                {
+                    BookWithIdModel cart = new BookWithIdModel();
+                    cart.BookId = Convert.ToInt32(Reader["BookId"]);
+                    cart.BookTitle = Reader["BookTitle"].ToString();
+                    cart.BookAuthor = Reader["BookAuthor"].ToString();
+                    cart.BookRating = Convert.ToDouble(Reader["BookRating"]);
+                    cart.NoOfUsersRated = Convert.ToInt32(Reader["NoOfUsersRated"]);
+                    cart.BookOriginalPrice = Convert.ToInt32(Reader["BookOriginalPrice"]);
+                    cart.BookDiscountPrice = Convert.ToInt32(Reader["BookDiscountPrice"]);
+                    cart.BookDetail = Reader["BookDetail"].ToString();
+                    cart.BookImage = Reader["BookImage"].ToString();
+                    cart.StockQuantity = Convert.ToInt32(Reader["StockQuantity"]);
+                    cart.CartQuantity = Convert.ToInt32(Reader["quantity"]);
+                    cart.CartId = Convert.ToInt32(Reader["cartId"]);
+                    carts.Add(cart);
+                }
+                con.Close();
+
+                if (carts.Count == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return carts;
+                }
+            }
+        }
+
         public List<CartModel> GetCarts(int id)
         {
             using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))

@@ -35,5 +35,10 @@ namespace BusinessLayer.Sessions
         {
             return cartRepo.DeleteCart(cartId, UserId);
         }
+
+        public List<BookWithIdModel> GetCartBooksByUserId(int UserId)
+        {
+            return cartRepo.GetCartBooksByUserId(UserId);
+        }
     }
 }

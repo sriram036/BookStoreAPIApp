@@ -21,6 +21,11 @@ namespace BusinessLayer.Sessions
             return bookRepo.AddBook(bookModel);
         }
 
+        public List<BookWithIdModel> GetBooks()
+        {
+            return bookRepo.GetBooks();
+        }
+
         public BookModel GetBook(int id)
         {
             return bookRepo.GetBook(id);

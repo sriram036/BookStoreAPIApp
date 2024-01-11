@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ModelLayer.Models;
@@ -8,6 +9,7 @@ namespace BookStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("CorsPolicy")]
     public class UserController : ControllerBase
     {
         private readonly IUserBusiness userBusiness;
@@ -36,14 +38,30 @@ namespace BookStoreAPI.Controllers
         [Route("Login")]
         public IActionResult LoginUser(LoginModel loginModel)
         {
-            UserModel User = userBusiness.LoginUser(loginModel);
-            if(User.Email == loginModel.Email)
+            string User = userBusiness.LoginUser(loginModel);
+            if(User != null)
             {
-                return Ok(new ResponseModel<UserModel> { IsSuccess = true, Message = "Login Successfull", Data = User });
+                return Ok(new ResponseModel<string> { IsSuccess = true, Message = "Login Successfull", Data = User });
             }
             else
             {
                 return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "Login Failed", Data = "Email Not Exist or Password Not Matched" });
+            }
+        }
+
+        [HttpGet]
+        [Route("GetUser")]
+        public IActionResult getUser()
+        {
+            int UserId = int.Parse(User.FindFirst("UserId").Value);
+            UserModel user = userBusiness.getUser(UserId);
+            if (User == null)
+            {
+                return BadRequest(new ResponseModel<string> { IsSuccess = false, Message = "User Not Found", Data = "UserId Not Exist" });
+            }
+            else
+            {
+                return Ok(user);
             }
         }
 

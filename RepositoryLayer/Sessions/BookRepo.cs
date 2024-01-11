@@ -7,6 +7,7 @@ using System.Text;
 using RepositoryLayer.Interfaces;
 using System.Xml.Linq;
 using Microsoft.Extensions.Configuration;
+using System.Net;
 
 namespace RepositoryLayer.Sessions
 {
@@ -42,6 +43,36 @@ namespace RepositoryLayer.Sessions
                 con.Close();
             }
             return bookModel;
+        }
+
+        public List<BookWithIdModel> GetBooks()
+        {
+            List<BookWithIdModel> books = new List<BookWithIdModel>();
+
+            using (SqlConnection con = new SqlConnection(_config["ConnectionStrings:BookStoreConnection"]))
+            {
+                SqlCommand cmd = new SqlCommand("spGetBooks", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                con.Open();
+                SqlDataReader Reader = cmd.ExecuteReader();
+                while (Reader.Read())
+                {
+                    BookWithIdModel bookModel = new BookWithIdModel();
+                    bookModel.BookId = Convert.ToInt32(Reader["BookId"]);
+                    bookModel.BookTitle = Reader["BookTitle"].ToString();
+                    bookModel.BookAuthor = Reader["BookAuthor"].ToString();
+                    bookModel.BookRating = Convert.ToDouble(Reader["BookRating"]);
+                    bookModel.NoOfUsersRated = Convert.ToInt32(Reader["NoOfUsersRated"]);
+                    bookModel.BookOriginalPrice = Convert.ToInt32(Reader["BookOriginalPrice"]);
+                    bookModel.BookDiscountPrice = Convert.ToInt32(Reader["BookDiscountPrice"]);
+                    bookModel.BookDetail = Reader["BookDetail"].ToString();
+                    bookModel.BookImage = Reader["BookImage"].ToString();
+                    bookModel.StockQuantity = Convert.ToInt32(Reader["StockQuantity"]);
+                    books.Add(bookModel);
+                }
+            }
+            return books;
         }
 
         public BookModel GetBook(int id)
@@ -103,13 +134,13 @@ namespace RepositoryLayer.Sessions
                     cmdUpdate.Parameters.AddWithValue("@BookId", BookId);
                     cmdUpdate.Parameters.AddWithValue("@BookTitle", bookModel.BookTitle);
                     cmdUpdate.Parameters.AddWithValue("@BookAuthor", bookModel.BookAuthor);
+                    cmdUpdate.Parameters.AddWithValue("@StockQuantity", bookModel.StockQuantity);
                     cmdUpdate.Parameters.AddWithValue("@BookRating", bookModel.BookRating);
                     cmdUpdate.Parameters.AddWithValue("@NoOfUsersRated", bookModel.NoOfUsersRated);
                     cmdUpdate.Parameters.AddWithValue("@BookOriginalPrice", bookModel.BookOriginalPrice);
                     cmdUpdate.Parameters.AddWithValue("@BookDiscountPrice", bookModel.BookDiscountPrice);
                     cmdUpdate.Parameters.AddWithValue("@BookDetail", bookModel.BookDetail);
                     cmdUpdate.Parameters.AddWithValue("@BookImage", bookModel.BookImage);
-                    cmdUpdate.Parameters.AddWithValue("@StockQuantity", bookModel.StockQuantity);
                     cmdUpdate.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                     con.Open();
                     cmdUpdate.ExecuteNonQuery();
@@ -130,7 +161,7 @@ namespace RepositoryLayer.Sessions
                         book.BookDiscountPrice = Convert.ToInt32(ReaderData["BookDiscountPrice"]);
                         book.BookDetail = ReaderData["BookDetail"].ToString();
                         book.BookImage = ReaderData["BookImage"].ToString();
-                        bookModel.StockQuantity = Convert.ToInt32(ReaderData["StockQuantity"]);
+                        book.StockQuantity = Convert.ToInt32(ReaderData["StockQuantity"]);
                     }
                     return book;
                 }

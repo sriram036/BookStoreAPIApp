@@ -38,6 +38,25 @@ namespace BookStoreAPI.Controllers
 
         [Authorize]
         [HttpGet]
+        [Route("GetCartsByUser")]
+        public List<BookWithIdModel> GetCartBooksByUserId()
+        {
+            int UserId = int.Parse(User.FindFirst("UserId").Value);
+
+            List<BookWithIdModel> carts = cartBusiness.GetCartBooksByUserId(UserId);
+
+            if (carts != null)
+            {
+                return carts;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
         [Route("GetCarts")]
         public List<CartModel> GetCarts()
         {

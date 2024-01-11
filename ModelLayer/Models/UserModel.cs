@@ -9,6 +9,6 @@ namespace ModelLayer.Models
         public string FullName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public long MobileNumber { get; set; }
+        public string MobileNumber { get; set; }
     }
 }
